@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text Transcription</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Speech to Text Sentiment Analysis</h1>
+        <button id="start-btn">Start Listening</button>
+        <button id="stop-btn">Stop Listening</button>
+        <button id="save-btn">Save as PDF</button>
+        <div id="text-display">Waiting for input...</div>
+        <a id="download-link" href="#" style="display:none;">Download PDF</a>
+    </div>
+    <footer>&copy; 2024 Speech App</footer>
+
+    <script>
+        const startBtn = document.getElementById("start-btn");
+        const stopBtn = document.getElementById("stop-btn");
+        const saveBtn = document.getElementById("save-btn");
+        const textDisplay = document.getElementById("text-display");
+        const downloadLink = document.getElementById("download-link");
+
+        startBtn.addEventListener("click", () => {
+            textDisplay.innerHTML = "Listening... Please speak.";
+            fetch("/start", { method: "POST" })
+                .then((response) => response.json())
+                .then((data) => {
+                    textDisplay.innerHTML = data.success ? "Listening started!" : `Error: ${data.message}`;
+                })
+                .catch((error) => {
+                    textDisplay.innerHTML = `Error: ${error.message}`;
+                });
+        });
+
+        stopBtn.addEventListener("click", () => {
+            fetch("/stop", { method: "POST" })
+                .then((response) => response.json())
+                .then((data) => {
+                    textDisplay.innerHTML = data.success ? "Listening stopped!" : `Error: ${data.message}`;
+                })
+                .catch((error) => {
+                    textDisplay.innerHTML = `Error: ${error.message}`;
+                });
+        });
+
+        saveBtn.addEventListener("click", () => {
+            fetch("/save", { method: "POST" })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        textDisplay.innerHTML = "PDF saved successfully!";
+                        downloadLink.style.display = "inline-block";
+                        downloadLink.href = "/static/transcription.pdf";
+                        downloadLink.textContent = "Download PDF";
+                    } else {
+                        textDisplay.innerHTML = `Error: ${data.message}`;
+                    }
+                })
+                .catch((error) => {
+                    textDisplay.innerHTML = `Error: ${error.message}`;
+                });
+        });
+    </script>
+</body>
+</html>
